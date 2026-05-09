@@ -1,0 +1,22 @@
+{
+  "name": "fitness-center-backend",
+  "version": "1.0.0",
+  "description": "Fitness Center Management System Backend API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["fitness", "management", "api", "express"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^16.0.3",
+    "express": "^5.2.1",
+    "msnodesqlv8": "^5.1.9",
+    "mssql": "^12.5.2"
+  }
+}

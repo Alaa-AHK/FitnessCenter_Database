@@ -1,0 +1,1557 @@
+<script src="api.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitness Center System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e10;
+    --surface: #18181c;
+    --surface2: #222228;
+    --surface3: #2a2a32;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #c8f25c;
+    --accent2: #a0d040;
+    --accent-dim: rgba(200,242,92,0.12);
+    --accent-dim2: rgba(200,242,92,0.06);
+    --text: #f0f0ee;
+    --text2: #9898a0;
+    --text3: #5c5c65;
+    --danger: #ff5c5c;
+    --danger-dim: rgba(255,92,92,0.12);
+    --success: #4ecb71;
+    --success-dim: rgba(78,203,113,0.12);
+    --warn: #f5a623;
+    --warn-dim: rgba(245,166,35,0.12);
+    --radius: 10px;
+    --radius-lg: 16px;
+    --nav-w: 220px;
+    --header-h: 60px;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; font-size: 14px; }
+
+  /* ── HEADER ── */
+  header {
+    height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 24px; gap: 16px;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; color: var(--accent); letter-spacing: -0.5px; }
+  .logo span { color: var(--text2); font-weight: 400; }
+  .header-badge { margin-left: auto; background: var(--accent-dim); color: var(--accent); font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(200,242,92,0.25); }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); }
+
+  /* ── NAV ── */
+  nav {
+    width: var(--nav-w); background: var(--surface); border-right: 1px solid var(--border);
+    position: fixed; top: var(--header-h); bottom: 0; left: 0; overflow-y: auto;
+    padding: 20px 12px;
+  }
+  .nav-section { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); padding: 0 8px; margin: 20px 0 6px; }
+  .nav-section:first-child { margin-top: 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+    border-radius: 8px; cursor: pointer; color: var(--text2); font-size: 13.5px;
+    transition: all 0.15s; margin-bottom: 2px; border: 1px solid transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(200,242,92,0.2); }
+  .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-count { margin-left: auto; font-size: 11px; background: var(--surface3); color: var(--text3); padding: 2px 7px; border-radius: 10px; }
+  .nav-item.active .nav-count { background: rgba(200,242,92,0.18); color: var(--accent2); }
+
+  /* ── MAIN ── */
+  main { margin-left: var(--nav-w); flex: 1; padding: 28px 32px; overflow-x: hidden; }
+
+  /* ── PAGE HEADER ── */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .page-sub { color: var(--text2); font-size: 13px; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: none; font-family: 'DM Sans', sans-serif; }
+  .btn-primary { background: var(--accent); color: #0e0e10; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--surface3); }
+  .btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,92,92,0.2); }
+  .btn-danger:hover { background: rgba(255,92,92,0.2); }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+  /* ── STAT CARDS ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text2); margin-top: 5px; }
+  .stat-accent { border-color: rgba(200,242,92,0.2); }
+  .stat-accent .stat-value { color: var(--accent); }
+
+  /* ── TABLE ── */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .table-toolbar { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .search-box { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 12px; flex: 1; max-width: 320px; }
+  .search-box input { background: none; border: none; outline: none; color: var(--text); font-size: 13px; width: 100%; font-family: 'DM Sans', sans-serif; }
+  .search-box input::placeholder { color: var(--text3); }
+  .search-icon { color: var(--text3); flex-shrink: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: var(--surface2); }
+  th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); color: var(--text); }
+  .td-name { color: var(--text); font-weight: 500; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+  .badge-green { background: var(--success-dim); color: var(--success); }
+  .badge-red { background: var(--danger-dim); color: var(--danger); }
+  .badge-yellow { background: var(--warn-dim); color: var(--warn); }
+  .badge-accent { background: var(--accent-dim); color: var(--accent); }
+  .badge-gray { background: var(--surface3); color: var(--text2); }
+  .action-btns { display: flex; gap: 6px; }
+  .icon-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 5px 8px; cursor: pointer; color: var(--text3); transition: all 0.15s; display: inline-flex; align-items: center; }
+  .icon-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+  .icon-btn.danger:hover { border-color: rgba(255,92,92,0.3); color: var(--danger); }
+  .table-footer { padding: 12px 18px; display: flex; align-items: center; gap: 10px; color: var(--text3); font-size: 12px; border-top: 1px solid var(--border); }
+  .tf-spacer { flex: 1; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); width: 540px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 20px 24px 0; display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; padding: 4px; border-radius: 6px; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer { padding: 0 24px 20px; display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* ── FORM ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; color: var(--text2); font-weight: 500; }
+  .form-control { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 12px; color: var(--text); font-size: 13px; outline: none; width: 100%; font-family: 'DM Sans', sans-serif; transition: border-color 0.15s; }
+  .form-control:focus { border-color: rgba(200,242,92,0.4); box-shadow: 0 0 0 3px rgba(200,242,92,0.08); }
+  select.form-control option { background: var(--surface2); }
+  .form-hint { font-size: 11px; color: var(--text3); }
+
+  /* ── PAGE SECTIONS ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CARD GRID ── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .data-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; transition: border-color 0.15s; cursor: pointer; }
+  .data-card:hover { border-color: var(--border2); }
+  .data-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .av-green { background: var(--success-dim); color: var(--success); }
+  .av-accent { background: var(--accent-dim); color: var(--accent); }
+  .av-blue { background: rgba(80,140,255,0.12); color: #809fff; }
+  .av-red { background: var(--danger-dim); color: var(--danger); }
+  .data-card-name { font-weight: 500; font-size: 14px; color: var(--text); }
+  .data-card-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .data-card-stats { display: flex; gap: 16px; }
+  .dcs { text-align: center; }
+  .dcs-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); }
+  .dcs-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; background: var(--surface2); padding: 4px; border-radius: var(--radius); width: fit-content; margin-bottom: 20px; }
+  .tab { padding: 7px 16px; border-radius: 7px; cursor: pointer; font-size: 13px; color: var(--text2); transition: all 0.15s; }
+  .tab.active { background: var(--surface); color: var(--text); }
+
+  /* ── PLAN CARDS ── */
+  .plan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; transition: all 0.15s; }
+  .plan-card:hover { border-color: rgba(200,242,92,0.3); }
+  .plan-card.featured { border-color: rgba(200,242,92,0.35); background: rgba(200,242,92,0.03); }
+  .plan-price { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 700; color: var(--accent); margin: 8px 0 4px; }
+  .plan-price span { font-size: 13px; color: var(--text2); font-family: 'DM Sans', sans-serif; font-weight: 400; }
+  .plan-name { font-weight: 500; font-size: 15px; color: var(--text); }
+  .plan-duration { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+  .plan-annual { font-size: 11px; color: var(--text3); margin-top: 8px; }
+
+  /* ── BRANCH CARD ── */
+  .branch-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr auto; gap: 16px; }
+  .branch-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .branch-meta { font-size: 12px; color: var(--text2); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .branch-meta-item { display: flex; align-items: center; gap: 5px; }
+  .branch-stats { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+
+  /* ── NOTIFICATION ── */
+  .toast { position: fixed; bottom: 24px; right: 24px; z-index: 500; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 18px; font-size: 13px; color: var(--text); transform: translateY(80px); opacity: 0; transition: all 0.3s; max-width: 320px; display: flex; align-items: center; gap: 10px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(78,203,113,0.4); }
+  .toast.error { border-color: rgba(255,92,92,0.4); }
+
+  /* ── PROGRESS ── */
+  .progress-bar-wrap { height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+  .progress-bar.danger { background: var(--danger); }
+
+  /* ── MISC ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--surface3); color: var(--text2); font-size: 11px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">FitCenter <span>Admin</span></div>
+  <span style="color:var(--text3); font-size:12px; margin-left:8px;">Phase 2 – Database UI</span>
+  <div class="header-badge" id="header-branch-count">Loading Branches...</div>
+  <div style="width:34px;height:34px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;margin-left:12px;cursor:pointer;" title="Admin">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
+  </div>
+</header>
+
+<div class="layout">
+<nav>
+  <div class="nav-section">Main</div>
+  <div class="nav-item active" onclick="showPage('members', this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.85"/></svg>
+    Members <span class="nav-count" id="nav-count-members">0</span>
+  </div>
+  <div class="nav-item" onclick="showPage('coaches', this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Coaches <span class="nav-count" id="nav-count-coaches">0</span>
+  </div>
+  <div class="nav-item" onclick="showPage('classes', this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    Classes <span class="nav-count" id="nav-count-classes">0</span>
+  </div>
+  <div class="nav-section">Operations</div>
+  <div class="nav-item" onclick="showPage('branches', this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Branches <span class="nav-count" id="nav-count-branches">0</span>
+  </div>
+  <div class="nav-item" onclick="showPage('equipment', this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3-3a1 1 0 000-1.4l-1.6-1.6a1 1 0 00-1.4 0z"/><path d="M7 13l-3 3 3 3 3-3-3-3z"/><line x1="8" y1="12" x2="16" y2="4"/></svg>
+    Equipment <span class="nav-count" id="nav-count-equip">0</span>
+  </div>
+  <div class="nav-section">Billing</div>
+  <div class="nav-item" onclick="showPage('plans', this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    Membership Plans <span class="nav-count" id="nav-count-plans">0</span>
+  </div>
+</nav>
+
+<main>
+
+<div id="page-members" class="page active">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Members</div>
+      <div class="page-sub">Manage gym members, plans, and coach assignments</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-add-member')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Member
+    </button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card stat-accent"><div class="stat-label">Total Members</div><div class="stat-value" id="stat-members-total">0</div><div class="stat-sub">Active enrollees</div></div>
+    <div class="stat-card"><div class="stat-label">Active Plans</div><div class="stat-value" id="stat-members-active">0</div><div class="stat-sub">All subscribed</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Age</div><div class="stat-value" id="stat-members-age">0</div><div class="stat-sub">Years old</div></div>
+    <div class="stat-card"><div class="stat-label">Gender Split</div><div class="stat-value" style="font-size:20px;" id="stat-members-gender">0M / 0F</div><div class="stat-sub">Male / Female</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by name…" oninput="filterTable('members-table', this.value)">
+      </div>
+      <select class="form-control" style="width:160px;" onchange="filterByGender(this.value)">
+        <option value="">All genders</option>
+        <option>Male</option>
+        <option>Female</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto;">
+    <table id="members-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Gender</th><th>Age</th><th>Phone</th><th>Workout Plan</th><th>Coach</th><th>Membership</th><th>Plan Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="members-tbody"></tbody>
+    </table>
+    </div>
+    <div class="table-footer">
+      <span id="members-count">Showing 0 members</span>
+      <div class="tf-spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="prevPage('members')">← Prev</button>
+      <span style="color:var(--text3)">Page 1 of 1</span>
+      <button class="btn btn-ghost btn-sm" onclick="nextPage('members')">Next →</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-coaches" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Coaches</div>
+      <div class="page-sub">Staff, certifications, and workload overview</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-add-coach')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Coach
+    </button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card stat-accent"><div class="stat-label">Total Coaches</div><div class="stat-value" id="stat-coach-total">0</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Salary</div><div class="stat-value" id="stat-coach-salary">0</div><div class="stat-sub">EGP / month</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Members</div><div class="stat-value" id="stat-coach-members">0</div><div class="stat-sub">Per coach</div></div>
+    <div class="stat-card"><div class="stat-label">Certificates</div><div class="stat-value" id="stat-coach-certs">0</div><div class="stat-sub">Total issued</div></div>
+  </div>
+
+  <div class="card-grid" id="coaches-grid"></div>
+</div>
+
+<div id="page-classes" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Classes</div>
+      <div class="page-sub">Attendance, capacity, and enrollment management</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-add-class')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Class
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search class…" oninput="filterTable('classes-table', this.value)">
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+    <table id="classes-table">
+      <thead>
+        <tr><th>ID</th><th>Class Name</th><th>Leading Coach</th><th>Capacity</th><th>Attendees</th><th>Spots Left</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="classes-tbody"></tbody>
+    </table>
+    </div>
+    <div class="table-footer"><span id="classes-count">0 classes total</span></div>
+  </div>
+</div>
+
+<div id="page-branches" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Branches</div>
+      <div class="page-sub">Locations, managers, and equipment overview</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-add-branch')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Branch
+    </button>
+  </div>
+
+  <div id="branches-list"></div>
+</div>
+
+<div id="page-equipment" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Equipment & Maintenance</div>
+      <div class="page-sub">Track equipment and log maintenance records</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-add-maintenance')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log Maintenance
+    </button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchEquipTab('all', this)">All Equipment</div>
+    <div class="tab" onclick="switchEquipTab('maintained', this)">Recently Maintained</div>
+    <div class="tab" onclick="switchEquipTab('none', this)">No Record</div>
+  </div>
+
+  <div class="table-wrap">
+    <div style="overflow-x:auto;">
+    <table id="equipment-table">
+      <thead>
+        <tr><th>ID</th><th>Equipment Type</th><th>Last Maintained</th><th>Status</th><th>Branches</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="equipment-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<div id="page-plans" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Membership Plans</div>
+      <div class="page-sub">Pricing, durations, and annual cost comparison</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-add-plan')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Plan
+    </button>
+  </div>
+
+  <div class="plan-grid" id="plans-grid"></div>
+
+  <div class="table-wrap">
+    <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Plan</th><th>Duration</th><th>Price (EGP)</th><th>Annual Cost</th><th>Members</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="plans-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<div class="modal-overlay" id="modal-add-member">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Member</div>
+      <button class="modal-close" onclick="closeModal('modal-add-member')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Full Name *</label><input class="form-control" id="add-member-name" placeholder="e.g. Ahmed Mohamed" type="text"></div>
+        <div class="form-group"><label>Gender *</label><select class="form-control" id="add-member-gender"><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label>Birth Date *</label><input class="form-control" id="add-member-birthdate" type="date"></div>
+        <div class="form-group"><label>Phone Number *</label><input class="form-control" id="add-member-phone" placeholder="01XXXXXXXXX" type="text"></div>
+        <div class="form-group"><label>Workout Plan</label><input class="form-control" id="add-member-workout" placeholder="e.g. Muscle Gain" type="text"></div>
+        <div class="form-group"><label>Assign Coach</label>
+          <select class="form-control coach-dropdown" id="add-member-coach">
+            <option value="">— No Coach —</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Membership Plan</label>
+          <select class="form-control plan-dropdown" id="add-member-plan">
+            <option value="">— No Plan —</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Plan Start Date</label><input class="form-control" id="add-member-plan-start" type="date"></div>
+      </div>
+      <p class="form-hint" style="margin-top:12px;">* Required fields. Phone must start with 01 followed by a digit.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-member')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddMember()">Add Member</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-member">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Member</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-member')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <input type="hidden" id="edit-member-id">
+        <div class="form-group full"><label>Full Name *</label><input class="form-control" id="edit-member-name" type="text"></div>
+        <div class="form-group"><label>Gender *</label><select class="form-control" id="edit-member-gender"><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label>Phone Number *</label><input class="form-control" id="edit-member-phone" type="text"></div>
+        <div class="form-group"><label>Workout Plan</label><input class="form-control" id="edit-member-workout" type="text"></div>
+        <div class="form-group"><label>Assign Coach</label>
+          <select class="form-control coach-dropdown" id="edit-member-coach">
+            <option value="">— No Coach —</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Membership Plan</label>
+          <select class="form-control plan-dropdown" id="edit-member-plan">
+            <option value="">— No Plan —</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Plan Start Date</label><input class="form-control" id="edit-member-startdate" type="date"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-member')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleUpdateMember()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-coach">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Coach</div>
+      <button class="modal-close" onclick="closeModal('modal-add-coach')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Full Name *</label><input class="form-control" id="add-coach-name" placeholder="Coach full name" type="text"></div>
+        <div class="form-group"><label>Gender *</label><select class="form-control" id="add-coach-gender"><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label>Salary (EGP) *</label><input class="form-control" id="add-coach-salary" placeholder="8000" type="number" min="1"></div>
+        <div class="form-group full"><label>Phone Number *</label><input class="form-control" id="add-coach-phone" placeholder="01XXXXXXXXX" type="text"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-coach')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddCoach()">Add Coach</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-coach">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Coach</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-coach')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <input type="hidden" id="edit-coach-id">
+        <div class="form-group full"><label>Full Name *</label><input class="form-control" id="edit-coach-name" type="text"></div>
+        <div class="form-group"><label>Gender *</label><select class="form-control" id="edit-coach-gender"><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label>Salary (EGP) *</label><input class="form-control" id="edit-coach-salary" type="number" min="1"></div>
+        <div class="form-group full"><label>Phone Number *</label><input class="form-control" id="edit-coach-phone" type="text"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-coach')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleUpdateCoach()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-class">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Class</div>
+      <button class="modal-close" onclick="closeModal('modal-add-class')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Class Name *</label><input class="form-control" id="add-class-name" placeholder="e.g. Pilates" type="text"></div>
+        <div class="form-group"><label>Capacity *</label><input class="form-control" id="add-class-capacity" placeholder="20" type="number" min="1"></div>
+        <div class="form-group"><label>Leading Coach *</label>
+          <select class="form-control coach-dropdown" id="add-class-coach"></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-class')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddClass()">Add Class</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-class">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Class</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-class')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <input type="hidden" id="edit-class-id">
+        <div class="form-group full"><label>Class Name *</label><input class="form-control" id="edit-class-name" type="text"></div>
+        <div class="form-group"><label>Capacity *</label><input class="form-control" id="edit-class-capacity" type="number" min="1"></div>
+        <div class="form-group"><label>Leading Coach *</label>
+          <select class="form-control coach-dropdown" id="edit-class-coach"></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-class')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleUpdateClass()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-enroll">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Enroll Member in Class</div>
+      <button class="modal-close" onclick="closeModal('modal-enroll')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Select Member *</label>
+          <select class="form-control" id="enroll-member">
+            <option value="">— Choose member —</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Select Class *</label>
+          <select class="form-control" id="enroll-class">
+            <option value="">— Choose class —</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-enroll')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleEnroll()">Enroll Member</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-branch">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Branch</div>
+      <button class="modal-close" onclick="closeModal('modal-add-branch')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Street Address *</label><input class="form-control" id="add-branch-street" type="text" placeholder="e.g. 90 Street"></div>
+        <div class="form-group"><label>City *</label><input class="form-control" id="add-branch-city" type="text" placeholder="e.g. New Cairo"></div>
+        <div class="form-group"><label>Open Hours *</label><input class="form-control" id="add-branch-hours" placeholder="e.g. 8AM-12AM" type="text"></div>
+        <div class="form-group full"><label>Manager Name *</label><input class="form-control" id="add-branch-mname" type="text"></div>
+        <div class="form-group"><label>Manager Email</label><input class="form-control" id="add-branch-memail" type="email" placeholder="Optional"></div>
+        <div class="form-group"><label>Manager Phone *</label><input class="form-control" id="add-branch-mphone" type="text"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-branch')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddBranch()">Add Branch</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-branch-hours">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Branch Hours</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-branch-hours')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <input type="hidden" id="edit-branch-hours-id">
+        <div class="form-group full"><label>Open Hours *</label><input class="form-control" id="edit-branch-hours-val" type="text"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-branch-hours')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleUpdateBranchHours()">Save Hours</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-branch-manager">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Branch Manager</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-branch-manager')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <input type="hidden" id="edit-branch-manager-id">
+        <div class="form-group full"><label>Manager Name *</label><input class="form-control" id="edit-branch-mname" type="text"></div>
+        <div class="form-group"><label>Manager Email</label><input class="form-control" id="edit-branch-memail" type="email" placeholder="Optional"></div>
+        <div class="form-group"><label>Manager Phone *</label><input class="form-control" id="edit-branch-mphone" type="text"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-branch-manager')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleUpdateBranchManager()">Save Manager</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-maintenance">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Log Maintenance</div>
+      <button class="modal-close" onclick="closeModal('modal-add-maintenance')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Equipment *</label>
+          <select class="form-control" id="maint-equip">
+            <option value="">— Choose Equipment —</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Maintenance Date *</label><input class="form-control" type="date" id="maint-date"></div>
+        <div class="form-group full"><label>Description *</label><textarea class="form-control" id="maint-desc" rows="3" placeholder="Describe what was done…" style="resize:vertical;"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-maintenance')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddMaintenance()">Save Log</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-plan">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Membership Plan</div>
+      <button class="modal-close" onclick="closeModal('modal-add-plan')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Plan Description *</label><input class="form-control" id="add-plan-name" placeholder="e.g. Summer Special Plan" type="text"></div>
+        <div class="form-group"><label>Duration (months) *</label><input class="form-control" id="add-plan-duration" placeholder="3" type="number" min="1"></div>
+        <div class="form-group"><label>Price (EGP) *</label><input class="form-control" id="add-plan-price" placeholder="2500" type="number" min="1"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-plan')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddPlan()">Create Plan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-plan">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Membership Plan</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-plan')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <input type="hidden" id="edit-plan-id">
+        <div class="form-group full"><label>Plan Description *</label><input class="form-control" id="edit-plan-name" type="text"></div>
+        <div class="form-group"><label>Duration (months) *</label><input class="form-control" id="edit-plan-duration" type="number" min="1"></div>
+        <div class="form-group"><label>Price (EGP) *</label><input class="form-control" id="edit-plan-price" type="number" min="1"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-plan')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleUpdatePlan()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg id="toast-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+const URL_BASE = 'http://localhost:5000/api';
+
+// ── GLOBAL STATE FOR MODALS ──
+let globalCoaches = [];
+let globalClasses = [];
+let globalBranches = [];
+let globalPlans = [];
+
+// ── CORE API REQUEST HELPER ──
+// This bypasses api.js for mutations so you can actually read the exact SQL error messages
+async function apiRequest(endpoint, method = 'GET', body = null) {
+    const options = { method, headers: {} };
+    if (body) {
+        options.headers['Content-Type'] = 'application/json';
+        options.body = JSON.stringify(body);
+    }
+    const res = await fetch(`${URL_BASE}${endpoint}`, options);
+    if (!res.ok) {
+        if (res.status === 404) throw new Error('Endpoint not found (404). Backend might need updating.');
+        let errStr = 'API Error';
+        try {
+            const errData = await res.json();
+            errStr = errData.error || errStr;
+        } catch(e) {}
+        throw new Error(errStr);
+    }
+    try { return await res.json(); } catch(e) { return {}; }
+}
+
+// ── HELPERS ──
+function initals(name) {
+  if (!name) return '??';
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('');
+}
+function avColor(i) {
+  const c = ['av-green','av-accent','av-blue','av-red'];
+  return c[i % c.length];
+}
+
+// ── RENDER MEMBERS ──
+async function renderMembers() {
+  const membersData = await apiRequest('/members');
+  const tbody = document.getElementById('members-tbody');
+  
+  tbody.innerHTML = membersData.map(m => {
+    const active = m.PlanActive;
+    return `<tr>
+      <td style="color:var(--text3)">#${m.MemberID}</td>
+      <td class="td-name">${m.MemberName}</td>
+      <td><span class="badge ${m.MemberGender==='Male'?'badge-accent':'badge-gray'}">${m.MemberGender}</span></td>
+      <td>${m.Age || '—'}</td>
+      <td style="font-size:12px;">${m.PhoneNumber}</td>
+      <td><span class="badge badge-gray">${m.WorkoutPlan || '—'}</span></td>
+      <td>${m.AssignedCoach || '—'}</td>
+      <td style="font-size:12px;">${m.MembershipPlan || '—'}</td>
+      <td><span class="badge ${active?'badge-green':'badge-red'}">${active?'Active':'Expired'}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn" title="Edit" onclick="openEditMember(${m.MemberID})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn danger" title="Delete" onclick="handleDeleteMember(${m.MemberID},'${m.MemberName}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('members-count').textContent = `Showing ${membersData.length} members`;
+  document.getElementById('nav-count-members').textContent = membersData.length;
+  document.getElementById('stat-members-total').textContent = membersData.length;
+  
+  const activePlans = membersData.filter(m => m.PlanActive).length;
+  document.getElementById('stat-members-active').textContent = activePlans;
+  
+  const validAges = membersData.filter(m => m.Age);
+  const avgAge = validAges.length ? Math.round(validAges.reduce((sum, m) => sum + m.Age, 0) / validAges.length) : 0;
+  document.getElementById('stat-members-age').textContent = avgAge;
+  
+  const males = membersData.filter(m => m.MemberGender === 'Male').length;
+  const females = membersData.filter(m => m.MemberGender === 'Female').length;
+  document.getElementById('stat-members-gender').textContent = `${males}M / ${females}F`;
+}
+
+// ── RENDER COACHES ──
+async function renderCoaches() {
+  globalCoaches = await apiRequest('/coaches');
+  const grid = document.getElementById('coaches-grid');
+  
+  grid.innerHTML = globalCoaches.map((c,i) => `
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="avatar ${avColor(i)}">${initals(c.CoachName)}</div>
+        <div>
+          <div class="data-card-name">${c.CoachName}</div>
+          <div class="data-card-sub">${c.CoachGender} · ${c.Salary ? c.Salary.toLocaleString() : 0} EGP</div>
+        </div>
+      </div>
+      <div class="data-card-stats">
+        <div class="dcs"><div class="dcs-val">${c.MembersCount}</div><div class="dcs-label">Members</div></div>
+        <div class="dcs"><div class="dcs-val">${c.ClassesLed}</div><div class="dcs-label">Classes</div></div>
+        <div class="dcs"><div class="dcs-val">${c.Certificates}</div><div class="dcs-label">Certs</div></div>
+      </div>
+      <hr class="divider">
+      <div style="font-size:11px; color:var(--text3); margin-bottom:8px;">${c.PhoneNumber}</div>
+      ${c.CertificateList && c.CertificateList.length ? c.CertificateList.map(cert => `<div class="chips"><span class="chip">${cert}</span></div>`).join('') : '<div class="chips"><span class="chip">—</span></div>'}
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="openEditCoach(${c.CoachID})" style="flex:1;">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="handleDeleteCoach(${c.CoachID},'${c.CoachName}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('nav-count-coaches').textContent = globalCoaches.length;
+  document.getElementById('stat-coach-total').textContent = globalCoaches.length;
+  const avgSal = globalCoaches.length ? Math.round(globalCoaches.reduce((s,c)=>s+(c.Salary||0),0)/globalCoaches.length) : 0;
+  document.getElementById('stat-coach-salary').textContent = avgSal.toLocaleString();
+  const avgMem = globalCoaches.length ? (globalCoaches.reduce((s,c)=>s+(c.MembersCount||0),0)/globalCoaches.length).toFixed(1) : 0;
+  document.getElementById('stat-coach-members').textContent = avgMem;
+  const totalCerts = globalCoaches.reduce((s,c)=>s+(c.Certificates||0),0);
+  document.getElementById('stat-coach-certs').textContent = totalCerts;
+}
+
+// ── RENDER CLASSES ──
+async function renderClasses() {
+  globalClasses = await apiRequest('/classes');
+  const tbody = document.getElementById('classes-tbody');
+  tbody.innerHTML = globalClasses.map(cl => {
+    const over = cl.Attendees > cl.Capacity;
+    return `<tr>
+      <td style="color:var(--text3)">#${cl.ClassID}</td>
+      <td class="td-name">${cl.ClassName}</td>
+      <td>${cl.LeadingCoach}</td>
+      <td>${cl.Capacity}</td>
+      <td>${cl.Attendees}</td>
+      <td>${cl.AvailableSpots}</td>
+      <td><span class="badge ${over?'badge-red':cl.IsFull?'badge-yellow':'badge-green'}">${over?'Overcapacity':cl.IsFull?'Full':'Open'}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-enroll'); document.getElementById('enroll-class').value = '${cl.ClassID}';">Enroll</button>
+          <button class="icon-btn" title="Edit" onclick="openEditClass(${cl.ClassID})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn danger" title="Delete" onclick="handleDeleteClass(${cl.ClassID}, '${cl.ClassName}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('nav-count-classes').textContent = globalClasses.length;
+  document.getElementById('classes-count').textContent = `${globalClasses.length} classes total`;
+}
+
+// ── RENDER BRANCHES ──
+async function renderBranches() {
+  globalBranches = await apiRequest('/branches');
+  const list = document.getElementById('branches-list');
+  list.innerHTML = globalBranches.map(b => `
+    <div class="branch-card">
+      <div>
+        <div class="branch-title">Branch ${b.BranchID} · ${b.AddressCity}</div>
+        <div style="font-size:12px;color:var(--text2);">${b.AddressStreet}</div>
+        <div class="branch-meta">
+          <div class="branch-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${b.OpenHours}
+          </div>
+          <div class="branch-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
+            Manager: ${b.ManagerName}
+          </div>
+          <div class="branch-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.64a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.91 14a16 16 0 006.06 6.06l.27-.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            ${b.ManagerPhoneNumber}
+          </div>
+          <div class="branch-meta-item" style="color:var(--text3);font-size:11px;">${b.ManagerEmail || 'No Email Provided'}</div>
+        </div>
+      </div>
+      <div class="branch-stats">
+        <div style="text-align:right;">
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--accent);">${b.EquipmentCount}</div>
+          <div style="font-size:11px;color:var(--text3);">Equipment</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text);">${b.ClassesHosted}</div>
+          <div style="font-size:11px;color:var(--text3);">Classes</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="openEditBranchHours(${b.BranchID})">Edit Hours</button>
+          <button class="btn btn-ghost btn-sm" onclick="openEditBranchManager(${b.BranchID})">Edit Manager</button>
+          <button class="btn btn-danger btn-sm" onclick="handleDeleteBranch(${b.BranchID}, '${b.AddressCity}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('nav-count-branches').textContent = globalBranches.length;
+  document.getElementById('header-branch-count').textContent = `${globalBranches.length} Branches Active`;
+}
+
+// ── RENDER EQUIPMENT ──
+async function renderEquipment(filter='all') {
+  const equipData = await apiRequest('/equipment');
+  const tbody = document.getElementById('equipment-tbody');
+  
+  let data = equipData;
+  if (filter === 'maintained') data = equipData.filter(e => e.LastMaintained);
+  if (filter === 'none') data = equipData.filter(e => !e.LastMaintained);
+  
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 90);
+  
+  tbody.innerHTML = data.map(e => {
+    const recent = e.LastMaintained && new Date(e.LastMaintained) > cutoff;
+    const status = !e.LastMaintained ? 'no-record' : recent ? 'maintained' : 'old';
+    const statusBadge = status==='maintained'?'<span class="badge badge-green">Maintained</span>':status==='old'?'<span class="badge badge-yellow">Needs check</span>':'<span class="badge badge-gray">No record</span>';
+    const branchLabels = e.Branches && e.Branches.length ? e.Branches.map(b=>`<span class="badge badge-gray" style="font-size:10px;">Br.${b}</span>`).join(' ') : '';
+    
+    return `<tr>
+      <td style="color:var(--text3)">#${e.EquipmentID}</td>
+      <td class="td-name">${e.EquipmentType}</td>
+      <td style="font-size:12px;">${e.LastMaintained ? e.LastMaintained.split('T')[0] : '—'}</td>
+      <td>${statusBadge}</td>
+      <td>${branchLabels || '<span style="color:var(--text3);font-size:11px;">Unassigned</span>'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-maintenance'); document.getElementById('maint-equip').value = ${e.EquipmentID};">Log</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('nav-count-equip').textContent = equipData.length;
+}
+
+// ── RENDER PLANS ──
+async function renderPlans() {
+  globalPlans = await apiRequest('/plans');
+  const grid = document.getElementById('plans-grid');
+  
+  let featured = null;
+  if(globalPlans.length > 0) {
+      featured = globalPlans.reduce((a,b)=>(a.MemberCount||0)>(b.MemberCount||0)?a:b);
+  }
+  
+  let totalMembers = globalPlans.reduce((sum, p) => sum + (p.MemberCount||0), 0);
+  if(totalMembers === 0) totalMembers = 1;
+
+  grid.innerHTML = globalPlans.map(p => {
+    const isFeat = featured && p.MembershipID === featured.MembershipID;
+    return `<div class="plan-card ${isFeat?'featured':''}">
+      ${isFeat?'<div class="badge badge-accent" style="margin-bottom:8px;display:inline-flex;">Most Popular</div>':''}
+      <div class="plan-name">${p.PlanDescription}</div>
+      <div class="plan-price">${p.Price.toLocaleString()}<span> EGP</span></div>
+      <div class="plan-duration">${p.Duration} month${p.Duration>1?'s':''} · ${p.MemberCount} members</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${Math.round(p.MemberCount/totalMembers*100)}%"></div></div>
+      <div class="plan-annual">≈ ${p.AnnualCost.toLocaleString()} EGP / year</div>
+      <div style="margin-top:14px;display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="openEditPlan(${p.MembershipID})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="handleDeletePlan(${p.MembershipID})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const tbody = document.getElementById('plans-tbody');
+  tbody.innerHTML = globalPlans.map(p => {
+    return `<tr>
+      <td style="color:var(--text3)">#${p.MembershipID}</td>
+      <td class="td-name">${p.PlanDescription}</td>
+      <td>${p.Duration} mo.</td>
+      <td>${p.Price.toLocaleString()}</td>
+      <td>${p.AnnualCost.toLocaleString()} EGP</td>
+      <td>${p.MemberCount}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn" title="Edit" onclick="openEditPlan(${p.MembershipID})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn danger" title="Delete" onclick="handleDeletePlan(${p.MembershipID})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('nav-count-plans').textContent = globalPlans.length;
+}
+
+// ── PAGE NAV ──
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+// ── MODAL CONTROLS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); });
+});
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  const icon = document.getElementById('toast-icon');
+  document.getElementById('toast-msg').textContent = msg;
+  t.className = 'toast ' + type;
+  icon.innerHTML = type==='success'
+    ? '<polyline points="20 6 9 17 4 12"/>'
+    : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── HANDLERS: MEMBERS ──
+async function handleAddMember() { 
+  const newMember = {
+    name: document.getElementById('add-member-name').value,
+    gender: document.getElementById('add-member-gender').value,
+    birthDate: document.getElementById('add-member-birthdate').value,
+    phone: document.getElementById('add-member-phone').value,
+    workoutPlan: document.getElementById('add-member-workout').value,
+    coachID: document.getElementById('add-member-coach').value,
+    planID: document.getElementById('add-member-plan').value,
+    planStartDate: document.getElementById('add-member-plan-start').value
+  };
+  try {
+    await apiRequest('/members', 'POST', newMember);
+    closeModal('modal-add-member');
+    await renderMembers();
+    showToast('Member added', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function handleUpdateMember() { 
+  const id = document.getElementById('edit-member-id').value;
+  const updatedMember = {
+    name: document.getElementById('edit-member-name').value,
+    gender: document.getElementById('edit-member-gender').value,
+    phone: document.getElementById('edit-member-phone').value,
+    workoutPlan: document.getElementById('edit-member-workout').value,
+    coachID: document.getElementById('edit-member-coach').value,
+    planID: document.getElementById('edit-member-plan').value,
+    planStartDate: document.getElementById('edit-member-startdate').value
+  };
+  try {
+    await apiRequest(`/members/${id}`, 'PUT', updatedMember);
+    closeModal('modal-edit-member');
+    await renderMembers();
+    showToast('Member updated', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function handleDeleteMember(id, name) {
+  if (!confirm(`Delete member "${name}"? This will also remove attendance and equipment records.`)) return;
+    try {
+        await apiRequest(`/members/${id}`, 'DELETE');
+        await renderMembers();
+        showToast(`Deleted ${name}`, 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function openEditMember(id) {
+  try {
+        const profile = await apiRequest(`/members/${id}`);
+        document.getElementById('edit-member-id').value = id;
+        document.getElementById('edit-member-name').value = profile.MemberName || '';
+        document.getElementById('edit-member-gender').value = profile.MemberGender || '';
+        document.getElementById('edit-member-phone').value = profile.PhoneNumber || '';
+        document.getElementById('edit-member-workout').value = profile.WorkoutPlan || '';
+        document.getElementById('edit-member-coach').value = profile.CoachID || '';
+        document.getElementById('edit-member-plan').value = profile.PlanID || '';
+        
+        if(profile.PlanStartDate) {
+            document.getElementById('edit-member-startdate').value = profile.PlanStartDate.split('T')[0];
+        } else {
+            document.getElementById('edit-member-startdate').value = '';
+        }
+        openModal('modal-edit-member');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ── HANDLERS: COACHES ──
+async function handleAddCoach() {
+  const data = {
+      name: document.getElementById('add-coach-name').value,
+      gender: document.getElementById('add-coach-gender').value,
+      salary: parseInt(document.getElementById('add-coach-salary').value),
+      phone: document.getElementById('add-coach-phone').value
+  };
+  if(!data.name || !data.salary || !data.phone) {
+      return showToast('Please fill all required fields', 'error');
+  }
+  try {
+      await apiRequest('/coaches', 'POST', data);
+      closeModal('modal-add-coach');
+      await renderCoaches();
+      populateCoachDropdown();
+      showToast('Coach added', 'success');
+  } catch (err) {
+      showToast(err.message, 'error');
+  }
+}
+
+function openEditCoach(id) {
+    const c = globalCoaches.find(x => x.CoachID == id);
+    if(!c) return;
+    document.getElementById('edit-coach-id').value = c.CoachID;
+    document.getElementById('edit-coach-name').value = c.CoachName;
+    document.getElementById('edit-coach-gender').value = c.CoachGender;
+    document.getElementById('edit-coach-salary').value = c.Salary;
+    document.getElementById('edit-coach-phone').value = c.PhoneNumber;
+    openModal('modal-edit-coach');
+}
+
+async function handleUpdateCoach() {
+    const id = document.getElementById('edit-coach-id').value;
+    const data = {
+        name: document.getElementById('edit-coach-name').value,
+        gender: document.getElementById('edit-coach-gender').value,
+        salary: parseInt(document.getElementById('edit-coach-salary').value),
+        phone: document.getElementById('edit-coach-phone').value
+    };
+    if(!data.name || !data.salary || !data.phone) {
+        return showToast('Please fill all required fields', 'error');
+    }
+    try {
+        await apiRequest(`/coaches/${id}`, 'PUT', data);
+        closeModal('modal-edit-coach');
+        await renderCoaches();
+        populateCoachDropdown();
+        showToast('Coach updated', 'success');
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function handleDeleteCoach(id, name) {
+    if (!confirm(`Delete coach "${name}"? Make sure no members or classes are assigned first.`)) return;
+    try {
+        await apiRequest(`/coaches/${id}`, 'DELETE');
+        await renderCoaches();
+        populateCoachDropdown();
+        showToast(`Coach ${name} deleted`, 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ── HANDLERS: CLASSES ──
+async function handleAddClass() {
+    const data = {
+        name: document.getElementById('add-class-name').value,
+        capacity: parseInt(document.getElementById('add-class-capacity').value),
+        coachID: parseInt(document.getElementById('add-class-coach').value)
+    };
+    if(!data.name || !data.capacity || !data.coachID) {
+        showToast('Please fill all required fields', 'error');
+        return;
+    }
+    try {
+        await apiRequest('/classes', 'POST', data);
+        closeModal('modal-add-class');
+        await renderClasses();
+        populateClassDropdown();
+        showToast('Class added', 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+function openEditClass(id) {
+    const cl = globalClasses.find(x => x.ClassID == id);
+    if(!cl) return;
+    document.getElementById('edit-class-id').value = cl.ClassID;
+    document.getElementById('edit-class-name').value = cl.ClassName;
+    document.getElementById('edit-class-capacity').value = cl.Capacity;
+    document.getElementById('edit-class-coach').value = cl.LeadingCoachID;
+    openModal('modal-edit-class');
+}
+
+async function handleUpdateClass() {
+    const id = document.getElementById('edit-class-id').value;
+    const data = {
+        name: document.getElementById('edit-class-name').value,
+        capacity: parseInt(document.getElementById('edit-class-capacity').value),
+        coachID: parseInt(document.getElementById('edit-class-coach').value)
+    };
+    if(!data.name || !data.capacity || !data.coachID) {
+        showToast('Please fill all required fields', 'error');
+        return;
+    }
+    try {
+        await apiRequest(`/classes/${id}`, 'PUT', data);
+        closeModal('modal-edit-class');
+        await renderClasses();
+        populateClassDropdown();
+        showToast('Class updated', 'success');
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function handleDeleteClass(id, name) {
+    if (!confirm(`Delete class "${name}"?`)) return;
+    try {
+        await apiRequest(`/classes/${id}`, 'DELETE');
+        await renderClasses();
+        populateClassDropdown();
+        showToast(`Class ${name} deleted`, 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function handleEnroll() {
+    const memberId = parseInt(document.getElementById('enroll-member').value);
+    const classId = parseInt(document.getElementById('enroll-class').value);
+    if (!memberId || !classId) {
+        showToast('Select both member and class', 'error');
+        return;
+    }
+    try {
+        await apiRequest('/enrollments', 'POST', { memberID: memberId, classID: classId });
+        closeModal('modal-enroll');
+        await renderClasses();
+        showToast('Member enrolled', 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ── HANDLERS: BRANCHES ──
+async function handleAddBranch() {
+    const data = {
+        street: document.getElementById('add-branch-street').value.trim(),
+        city: document.getElementById('add-branch-city').value.trim(),
+        hours: document.getElementById('add-branch-hours').value.trim(),
+        managerName: document.getElementById('add-branch-mname').value.trim(),
+        managerEmail: document.getElementById('add-branch-memail').value.trim() || null, // Convert empty to null to avoid UNIQUE constraints collision
+        managerPhone: document.getElementById('add-branch-mphone').value.trim()
+    };
+    try {
+        await apiRequest('/branches', 'POST', data);
+        closeModal('modal-add-branch');
+        await renderBranches();
+        showToast('Branch added', 'success');
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+function openEditBranchHours(id) {
+    const b = globalBranches.find(x => x.BranchID == id);
+    if(!b) return;
+    document.getElementById('edit-branch-hours-id').value = b.BranchID;
+    document.getElementById('edit-branch-hours-val').value = b.OpenHours;
+    openModal('modal-edit-branch-hours');
+}
+
+async function handleUpdateBranchHours() {
+    const id = document.getElementById('edit-branch-hours-id').value;
+    const hours = document.getElementById('edit-branch-hours-val').value;
+    try {
+        await apiRequest(`/branches/${id}/hours`, 'PUT', { hours });
+        closeModal('modal-edit-branch-hours');
+        await renderBranches();
+        showToast('Branch hours updated', 'success');
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+function openEditBranchManager(id) {
+    const b = globalBranches.find(x => x.BranchID == id);
+    if(!b) return;
+    document.getElementById('edit-branch-manager-id').value = b.BranchID;
+    document.getElementById('edit-branch-mname').value = b.ManagerName;
+    document.getElementById('edit-branch-memail').value = b.ManagerEmail || '';
+    document.getElementById('edit-branch-mphone').value = b.ManagerPhoneNumber;
+    openModal('modal-edit-branch-manager');
+}
+
+async function handleUpdateBranchManager() {
+    const id = document.getElementById('edit-branch-manager-id').value;
+    const data = {
+        name: document.getElementById('edit-branch-mname').value.trim(),
+        email: document.getElementById('edit-branch-memail').value.trim() || null,
+        phone: document.getElementById('edit-branch-mphone').value.trim()
+    };
+    try {
+        await apiRequest(`/branches/${id}/manager`, 'PUT', data);
+        closeModal('modal-edit-branch-manager');
+        await renderBranches();
+        showToast('Manager updated', 'success');
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function handleDeleteBranch(id, city) {
+    if(!confirm(`Delete the branch in ${city}?`)) return;
+    try {
+        await apiRequest(`/branches/${id}`, 'DELETE');
+        await renderBranches();
+        showToast('Branch deleted', 'success');
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ── HANDLERS: EQUIPMENT ──
+async function handleAddMaintenance() {
+    const equipmentId = parseInt(document.getElementById('maint-equip').value);
+    const logDate = document.getElementById('maint-date').value;
+    const description = document.getElementById('maint-desc').value;
+    
+    if(!equipmentId || !logDate || !description) return showToast('Fill all fields', 'error');
+
+    try {
+        await apiRequest('/maintenance', 'POST', { equipmentID: equipmentId, logDate, description });
+        closeModal('modal-add-maintenance');
+        await renderEquipment();
+        showToast('Maintenance logged', 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+function switchEquipTab(filter, el) {
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderEquipment(filter);
+}
+
+// ── HANDLERS: PLANS ──
+async function handleAddPlan() {
+    const planData = {
+        description: document.getElementById('add-plan-name').value,
+        price: parseFloat(document.getElementById('add-plan-price').value),
+        duration: parseInt(document.getElementById('add-plan-duration').value)
+    };
+    if(!planData.description || !planData.price || !planData.duration) {
+        return showToast('Please fill all required fields', 'error');
+    }
+    try {
+        await apiRequest('/plans', 'POST', planData);
+        closeModal('modal-add-plan');
+        await renderPlans();
+        populatePlanDropdowns();
+        showToast('Plan created', 'success');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+function openEditPlan(id) {
+    const p = globalPlans.find(x => x.MembershipID == id);
+    if(!p) return;
+    document.getElementById('edit-plan-id').value = p.MembershipID;
+    document.getElementById('edit-plan-name').value = p.PlanDescription;
+    document.getElementById('edit-plan-duration').value = p.Duration;
+    document.getElementById('edit-plan-price').value = p.Price;
+    openModal('modal-edit-plan');
+}
+
+async function handleUpdatePlan() {
+    const id = document.getElementById('edit-plan-id').value;
+    const data = {
+        description: document.getElementById('edit-plan-name').value,
+        duration: parseInt(document.getElementById('edit-plan-duration').value),
+        price: parseFloat(document.getElementById('edit-plan-price').value)
+    };
+    if(!data.description || !data.duration || !data.price) {
+        return showToast('Please fill all required fields', 'error');
+    }
+    try {
+        await apiRequest(`/plans/${id}`, 'PUT', data);
+        closeModal('modal-edit-plan');
+        await renderPlans();
+        populatePlanDropdowns();
+        showToast('Plan updated', 'success');
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function handleDeletePlan(id) {
+    if(!confirm('Delete this membership plan?')) return;
+    try {
+        await apiRequest(`/plans/${id}`, 'DELETE');
+        await renderPlans();
+        populatePlanDropdowns();
+        showToast('Plan deleted', 'success');
+    } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ── FILTER/SEARCH ──
+function filterTable(tableId, q) {
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  q = q.toLowerCase();
+  rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+}
+function filterByGender(g) {
+  const rows = document.querySelectorAll('#members-table tbody tr');
+  rows.forEach(r => { r.style.display = (!g || r.textContent.includes(g)) ? '' : 'none'; });
+}
+function prevPage() { showToast('Pagination handled by API'); }
+function nextPage() { showToast('Pagination handled by API'); }
+
+// ── DROPDOWNS ──
+async function populateCoachDropdown() {
+    try {
+        const coachesData = await apiRequest('/lookup/coaches');
+        const coachSelects = document.querySelectorAll('.coach-dropdown');
+        coachSelects.forEach(select => {
+            select.innerHTML = '<option value="">— No Coach —</option>' +
+                coachesData.map(c => `<option value="${c.CoachID}">${c.CoachName}</option>`).join('');
+        });
+    } catch (err) { console.error("Coach dropdown failed"); }
+}
+
+async function populatePlanDropdowns() {
+    try {
+        const plansData = await apiRequest('/lookup/plans');
+        const planSelects = document.querySelectorAll('.plan-dropdown');
+        planSelects.forEach(select => {
+            select.innerHTML = '<option value="">— No Plan —</option>' +
+                plansData.map(p => `<option value="${p.MembershipID}">${p.PlanDescription}</option>`).join('');
+        });
+    } catch (err) { console.error("Plan dropdown failed"); }
+}
+
+async function populateEnrollDropdown() {
+    try {
+        const membersData = await apiRequest('/lookup/members');
+        const sel = document.getElementById('enroll-member');
+        sel.innerHTML = '<option value="">— Choose member —</option>' + 
+            membersData.map(m => `<option value="${m.MemberID}">${m.MemberID} · ${m.MemberName}</option>`).join('');
+    } catch (err) { console.error("Member dropdown failed"); }
+}
+
+async function populateClassDropdown() {
+    try {
+        const classesData = await apiRequest('/lookup/classes');
+        const classSelect = document.getElementById('enroll-class');
+        classSelect.innerHTML = '<option value="">— Choose class —</option>' +
+            classesData.map(c => `<option value="${c.ClassID}">${c.ClassName}</option>`).join('');
+    } catch (err) { console.error("Class dropdown failed"); }
+}
+
+async function populateEquipmentDropdown() {
+    try {
+        const equipData = await apiRequest('/lookup/equipment');
+        const equipSelect = document.getElementById('maint-equip');
+        equipSelect.innerHTML = '<option value="">— Choose equipment —</option>' +
+            equipData.map(e => `<option value="${e.EquipmentID}">${e.EquipmentID} · ${e.EquipmentType}</option>`).join('');
+    } catch(err) { console.error("Equipment dropdown failed"); }
+}
+
+// ── SET DEFAULT DATE ──
+document.getElementById('maint-date').value = new Date().toISOString().split('T')[0];
+
+// ── INIT ──
+renderMembers();
+renderCoaches();
+renderClasses();
+renderBranches();
+renderEquipment();
+renderPlans();
+
+populateEnrollDropdown();
+populateCoachDropdown();
+populatePlanDropdowns();
+populateClassDropdown();
+populateEquipmentDropdown(); 
+</script>
+</body>
+</html>
