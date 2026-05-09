@@ -103,7 +103,3 @@ NODE_ENV=development
 ## License
 
 This project is licensed under the ISC License - see the LICENSE file for details.
-
-## Support
-
-For issues and questions, please open an issue on the repository.
